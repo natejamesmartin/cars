@@ -12,12 +12,12 @@
 # * put time in video - DONE
 # * reinstating a car creator - DONE
 # * stop signs - DONE
+# * traffic lights - DONE
+# * trying different geometries - DONE
 
 # TO TRY
-# * trying different geometries
 # * 2-way traffic
 # * multiple lanes
-# * traffic lights
 # * merge lanes
 
 # TO FIX
