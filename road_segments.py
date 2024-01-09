@@ -269,10 +269,20 @@ i4.add_road_start(r4)
 i2.add_road_end(r4)
 r4.add_trafficlight()
 
-r5=road_segment(400,0,600,200,2,20)
+r5=road_segment(400,0,600,0,2,20)
 i2.add_road_start(r5)
 i5=new_intersection()
 i5.add_road_end(r5)
+
+r6=road_segment(600,0,800,0,2,20)
+i5.add_road_start(r6)
+i6=new_intersection()
+i6.add_road_end(r6)
+
+r7=road_segment(600,0,600,200,2,20)
+i5.add_road_start(r7)
+i7=new_intersection()
+i7.add_road_end(r7)
 
 w.add_road_segment(r1)
 w.add_road_segment(r2)
@@ -288,6 +298,12 @@ w.add_intersection(i4)
 
 w.add_road_segment(r5)
 w.add_intersection(i5)
+
+w.add_road_segment(r6)
+w.add_intersection(i6)
+
+w.add_road_segment(r7)
+w.add_intersection(i7)
 
 n_cars=3
 dt=0.1 # s
@@ -333,6 +349,6 @@ speed_factor=100 # 1000 is real time, smaller to go faster
 ani=animation.FuncAnimation(fig, animate, frames=n_steps,
                             interval=dt*speed_factor, blit=True,repeat=False)
 
-ani.save('road_segments.mp4',fps=30,extra_args=['-vcodec','libx264'])
+ani.save('fewer_collisions.mp4',fps=30,extra_args=['-vcodec','libx264'])
 
 #plt.show()

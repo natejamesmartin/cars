@@ -175,7 +175,8 @@ class carlist:
                 starts=thisint.road_starts
                 # pick one and move the car to that road segment
                 if len(starts)>0:
-                    newroad=starts[randint(0,len(starts)-1)]
+                    #newroad=starts[randint(0,len(starts)-1)]
+                    newroad=c.next_road
                     print("Moving car from",self.road.id,"to",newroad.id)
                     # newroad.carlist.carlist.append(copy.deepcopy(c))
                     # not sure if we need to copy it, or not
@@ -208,7 +209,23 @@ class carlist:
                 else:
                     ci.a=0
             else: # car is at the front of the line
-                if ci.v<ci.vmax:
+                if ci.next_road_listindex!=-1:
+                    nextroad=ci.next_road
+                    if len(ci.next_road.carlist.carlist)>0:
+                        nextcar=ci.next_road.carlist.carlist[-1]
+                        distance_to_nextcar=ci.distance_to_end()+nextcar.distance_from_start()
+                    else:
+                        distance_to_nextcar=ci.distance_to_end()+ci.next_road.length
+                else:
+                    distance_to_nextcar=200
+                if (distance_to_nextcar<10):
+                    ci.v=0 # m/s
+                    ci.a=0 # m/s2
+                    #print("close avoidance",i,closestindex,self.xs())
+                elif (distance_to_nextcar<50) & (ci.v>0):
+                    ci.a=-1 # m/s2
+                    #print("collision avoidance",i,closestindex,self.xs())
+                elif ci.v<ci.vmax:
                     if ci.waiting==False:
                         ci.a=1
                     else:
