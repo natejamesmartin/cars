@@ -1,14 +1,16 @@
+from math import acos
 from random import randint
 from random import seed
 import numpy as np
 from math import sqrt
+from math import pi
 
 import copy
 
 seed(1)
 np.random.seed(1)
 
-color = ["red", "blue", "green", "gray", "purple", "orange"]
+color = ["red","blue","green","gray","purple","orange"]
 
 class car:
     def __init__(self,road,x=0,y=0,vi=10):
@@ -43,13 +45,41 @@ class car:
         starts=thisint.road_starts
         # pick one and assign as next road segment
         if len(starts)>0:
-            random_index=randint(0,len(starts)-1)
-            newroad=starts[random_index]
+            while True:
+                random_index=randint(0,len(starts)-1)
+                newroad=starts[random_index]
+                self.next_turn=self.findangle(self.road,newroad)
+                #if(self.next_turn!='u-turn'): # to get rid of u-turns
+                if(self.next_turn=='left'): # to force all left turns
+                    break
             self.next_road=newroad
             self.next_road_listindex=random_index
+            print("this car is on road number",self.road.id,"and it is turning on to",self.next_road.id)
+            print("The",self.color,"car will go",self.next_turn)
         else:
             self.next_road_listindex=-1 # this intersection must be a destroyer
-
+    
+    def findangle(self,road1,road2):
+        deltax1=road1.endx-road1.startx
+        deltay1=road1.endy-road1.starty
+        deltax2=road2.endx-road2.startx
+        deltay2=road2.endy-road2.starty
+        dotproduct=deltax1*deltax2+deltay1*deltay2
+        crossproduct=deltax1*deltay2-deltay1*deltax2
+        costheta=dotproduct/(sqrt(deltax1**2+deltay1**2)*sqrt(deltax2**2+deltay2**2))
+        angle=acos(costheta)*180/pi
+        precision=0.001
+        if(abs(costheta-1)<precision): # costheta=1 means theta=0
+            value='straight'
+        elif(abs(costheta+1)<precision): # costheta=-1 means theta=180 deg
+            value='u-turn'
+        else: # must be a left turn or a right turn
+            if(crossproduct>0):
+                value='left'
+            else:
+                value='right'
+        return value
+            
     def distance_to_end(self):
         d=self.road.length-self.distance_from_start()
         return d
@@ -226,10 +256,13 @@ class carlist:
                     ci.a=-1 # m/s2
                     #print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
-                    if ci.waiting==False:
-                        ci.a=1
-                    else:
+                    if (ci.waiting) | ((self.road.trafficlight)
+                &((self.road.trafficlightcolor=='red')
+                   |(self.road.trafficlightcolor=='yellow'))):
                         ci.a=0
+                        ci.v=0
+                    else:
+                        ci.a=1
                 else:
                     ci.a=0
 
