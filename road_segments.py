@@ -344,11 +344,11 @@ def animate(i):
     global_time+=dt
     return scatter,lightscatter,timebox,
 
-speed_factor=100 # 1000 is real time, smaller to go faster
+speed_factor=10 # 1000 is real time, smaller to go faster
 # set repeat = True to run forever
 ani=animation.FuncAnimation(fig, animate, frames=n_steps,
                             interval=dt*speed_factor, blit=True,repeat=False)
 
-ani.save('fewer_collisions.mp4',fps=30,extra_args=['-vcodec','libx264'])
+#ani.save('fewer_collisions.mp4',fps=30,extra_args=['-vcodec','libx264'])
 
-#plt.show()
+plt.show()
