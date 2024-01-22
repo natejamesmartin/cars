@@ -49,8 +49,8 @@ class car:
                 random_index=randint(0,len(starts)-1)
                 newroad=starts[random_index]
                 self.next_turn=self.findangle(self.road,newroad)
-                #if(self.next_turn!='u-turn'): # to get rid of u-turns
-                if(self.next_turn=='left'): # to force all left turns
+                if(self.next_turn!='u-turn'): # to get rid of u-turns
+                    #if(self.next_turn=='left'): # to force all left turns
                     break
             self.next_road=newroad
             self.next_road_listindex=random_index
@@ -58,7 +58,8 @@ class car:
             print("The",self.color,"car will go",self.next_turn)
         else:
             self.next_road_listindex=-1 # this intersection must be a destroyer
-    
+            self.next_turn='none'
+
     def findangle(self,road1,road2):
         deltax1=road1.endx-road1.startx
         deltay1=road1.endy-road1.starty
@@ -239,6 +240,9 @@ class carlist:
                 else:
                     ci.a=0
             else: # car is at the front of the line
+                # we are coming up to the next road segment
+                # search for the last car on the next road segment
+                # make sure we don't run into it!
                 if ci.next_road_listindex!=-1:
                     nextroad=ci.next_road
                     if len(ci.next_road.carlist.carlist)>0:
@@ -248,6 +252,11 @@ class carlist:
                         distance_to_nextcar=ci.distance_to_end()+ci.next_road.length
                 else:
                     distance_to_nextcar=200
+                # Now we know the minimum distance to the next car in
+                # front of us.  Make sure we slow down if we're
+                # getting close.  Otherwise, either keep on going, or
+                # go ahead and speed up again if traffic lights
+                # permit.
                 if (distance_to_nextcar<10):
                     ci.v=0 # m/s
                     ci.a=0 # m/s2
@@ -257,14 +266,34 @@ class carlist:
                     #print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
                     if (ci.waiting) | ((self.road.trafficlight)
-                &((self.road.trafficlightcolor=='red')
-                   |(self.road.trafficlightcolor=='yellow'))):
+                            &((self.road.trafficlightcolor=='red')
+                              |(self.road.trafficlightcolor=='yellow'))):
                         ci.a=0
                         ci.v=0
                     else:
                         ci.a=1
                 else:
                     ci.a=0
+
+                # If we're making a left turn, check for oncoming
+                # traffic
+                no_oncoming=True
+                if ((ci.next_turn=='left')
+                    & (len(self.road.oncoming)>0)
+                    & (ci.distance_to_end()<50)):
+                    for oncoming_road in self.road.oncoming:
+                        if len(oncoming_road.carlist.carlist)>0:
+                            oncoming_car=oncoming_road.carlist.carlist[0]
+                            if ((oncoming_car.distance_to_end()<100)
+                                & (oncoming_car.next_turn!='left')):
+                                no_oncoming=False
+                if no_oncoming==False:
+                    if (ci.distance_to_end()<10):
+                        ci.v=0 # m/s
+                        ci.a=0 # m/s2
+                    if (ci.distance_to_end()<50) & (ci.v>0):
+                        ci.a=-1 # m/s2
+
 
         # if the intersection at the start of this road is a creator,
         # consider making a car
