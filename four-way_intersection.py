@@ -15,11 +15,14 @@
 # * traffic lights - DONE
 # * trying different geometries - DONE
 # * collision avoidance looking ahead to next road segment - DONE
+# * 2-way traffic - DONE
+# * four-way intersection add oncoming traffic vertically - DONE
 
 # TO TRY
-# * 2-way traffic - STARTED 4-way intersection
 # * multiple lanes
 # * merge lanes
+# * left-turn lanes
+# * exit lanes
 
 # TO FIX
 
@@ -117,11 +120,13 @@ i0.initialize_lights([[r1,r5],[r3,r7]])
 r1.add_oncoming(r5)
 r5.add_oncoming(r1)
 
-n_steps=3000
+n_steps=100000
 
 # funcanimation loop, which controls the main event loop, now
 
 w.draw()
+#plt.xlim(-200,200)
+#plt.ylim(-200,200)
 timebox=plt.text(0.01,0.99,"Time: %6.2f s"%(0),
                  ha='left',va='top',transform=ax.transAxes)
 global_time=0
@@ -146,11 +151,16 @@ def animate(i):
     global_time+=dt
     return scatter,lightscatter,timebox,
 
-speed_factor=500 # 1000 is real time, smaller to go faster
+speed_factor=1 # 1000 is real time, smaller to go faster
 # set repeat = True to run forever
-ani=animation.FuncAnimation(fig, animate, frames=n_steps,
-                            interval=dt*speed_factor, blit=True,repeat=False)
+ani=animation.FuncAnimation(fig,animate,frames=n_steps,
+                            interval=dt*speed_factor,blit=True,repeat=False)
 
-#ani.save('fewer_collisions.mp4',fps=30,extra_args=['-vcodec','libx264'])
-
-plt.show()
+# uncomment the following lines to save mp4
+ani.save('four-way_intersection.mp4',fps=30,extra_args=['-vcodec','libx264'])
+del ani
+plt.clf()
+# otherwise comment out the following line to display movie live
+#plt.show()
+w.printstats()
+w.drawstats()

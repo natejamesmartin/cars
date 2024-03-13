@@ -3,6 +3,7 @@ import itertools
 from carlist import carlist
 from carlist import car
 import matplotlib.pyplot as plt
+import parameters
 
 class road_segment:
 
@@ -28,8 +29,8 @@ class road_segment:
         self.stopsign=False
         self.trafficlight=False
         self.trafficlightcolor='red'
-        self.greentime=50 # s
-        self.yellowtime=10 # s
+        self.greentime=parameters.greentime # s
+        self.yellowtime=parameters.yellowtime # s
         self.oncoming=[] # list of oncoming traffic roads
     def add_oncoming(self,road):
         self.oncoming.append(road)
@@ -207,3 +208,28 @@ class world:
     def initialize_lights(self):
         for i in self.intersections:
             i.initialize_lights()
+    def printstats(self):
+        with open('road_stats.out','w') as f:
+            f.write("integer creationtime deletiontime lifetime\n")
+        for seg in self.road_segments:
+            i=seg.endint
+            if i.is_destroyer():                
+                print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
+                seg.carlist.cs.printstats()
+                with open('road_stats.out','a') as f:
+                    cs=seg.carlist.cs
+                    for i,ct in enumerate(cs.creationtimes):
+                        f.write("%d %f %f %f\n"%(i,ct,cs.deletiontimes[i],cs.deletiontimes[i]-ct))
+    def drawstats(self):
+        for seg in self.road_segments:
+            i=seg.endint
+            if i.is_destroyer():
+                print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
+                lifetimes=[]
+                cs=seg.carlist.cs
+                for i,ct in enumerate(cs.creationtimes):
+                    lifetimes.append(cs.deletiontimes[i]-cs.creationtimes[i])
+                plt.scatter(cs.creationtimes,lifetimes)
+        plt.xlabel('creation time (s)')
+        plt.ylabel('lifetime (s)')
+        plt.savefig('lt-vs-ct.png')
