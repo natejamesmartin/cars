@@ -1,0 +1,9 @@
+poisson_vmax=%pvm% # m/s
+greentime=%gt% # s
+yellowtime=%yt% # s
+poisson_time_to_create=%pttc% # s
+brakedistance=%bd% # m
+stopdistance=%sd% # m
+mergedistance=%md% # m
+seed=%seed%
+lt_yellow=%lty% # true or false
