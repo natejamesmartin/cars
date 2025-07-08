@@ -51,7 +51,7 @@ for i,line in enumerate(f):
         g.close()
 f.close()
 plt.scatter(vlist,allist)
-plt.xlabel('Average Velocity (m/s)')
+plt.xlabel('Average Maximum Velocity (m/s)')
 plt.ylabel('Average Lifetime of Car (s)')
 print(vlist,allist,nlist,al2list)
 unique_vlist=[]
@@ -62,6 +62,7 @@ print(unique_vlist)
 unique_allist=[]
 unique_al2list=[]
 unique_stdev=[]
+unique_nlist=[]
 for v in unique_vlist:
     suml=0
     sumn=0
@@ -77,7 +78,17 @@ for v in unique_vlist:
     unique_allist.append(al)
     unique_al2list.append(al2)
     unique_stdev.append(stdev)
-print(unique_allist,unique_al2list,unique_stdev)
+    unique_nlist.append(sumn)
+print(unique_allist,unique_al2list,unique_stdev,unique_nlist)
+total_time=100000*0.1 # s of each simulation
 
 plt.errorbar(unique_vlist,unique_allist,yerr=unique_stdev,fmt="o",color='red')
+plt.show()
+rlist=[x/total_time for x in nlist]
+plt.scatter(vlist,rlist)
+plt.xlabel('Average Maximum Velocity of Car (m/s)')
+plt.ylabel('Rate of Cars (cars/s)')
+unique_rlist=[x/(3*total_time) for x in unique_nlist]
+unique_rerr=[sqrt(x)/(3*total_time) for x in unique_nlist]
+plt.errorbar(unique_vlist,unique_rlist,yerr=unique_rerr,fmt="o",color='red')
 plt.show()

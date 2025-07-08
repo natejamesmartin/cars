@@ -13,7 +13,7 @@ np.random.seed(parameters.seed)
 color = ["red","blue","green","gray","purple","orange"]
 
 class car:
-    def __init__(self,road,x=0,y=0,t=0,vi=10):
+    def __init__(self,road,x=0,y=0,t=0,vi=10,m=1000):
         self.vmax=np.random.poisson(lam=parameters.poisson_vmax, size=1)[0] # m/s
         if self.vmax==0:  # don't allow cars with zero speed
             self.vmax=1
@@ -41,6 +41,8 @@ class car:
         self.assign_next_road()
 
         self.creationtime=t
+
+        self.m=m
 
     def assign_next_road(self):
         # selects the next road this car will go onto
@@ -269,7 +271,7 @@ class carlist:
         for i,ci in enumerate(self.carlist):
             # find the closest car in front of me
             closestindex=i-1
-            if closestindex!=-1:
+            if closestindex!=-1: # not the car at the front of the line
                 closestcar=self.carlist[closestindex]
                 closestdistance=self.distance(ci,closestcar)
                 #print("the closest car to car ",i, "is", closestindex)
@@ -278,7 +280,7 @@ class carlist:
                     ci.v=0 # m/s
                     ci.a=0 # m/s2
                     #print("close avoidance",i,closestindex,self.xs())
-                elif (closestdistance<parameters.brakedistance) & (ci.v>0):
+                elif (closestdistance<parameters.brakedistance) & (ci.v>1):
                     ci.a=-1 # m/s2
                     #print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
@@ -307,7 +309,7 @@ class carlist:
                     ci.v=0 # m/s
                     ci.a=0 # m/s2
                     #print("close avoidance",i,closestindex,self.xs())
-                elif (distance_to_nextcar<parameters.brakedistance) & (ci.v>0):
+                elif (distance_to_nextcar<parameters.brakedistance) & (ci.v>1):
                     ci.a=-1 # m/s2
                     #print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
@@ -339,9 +341,10 @@ class carlist:
                     if (ci.distance_to_end()<parameters.stopdistance):
                         ci.v=0 # m/s
                         ci.a=0 # m/s2
-                    if (ci.distance_to_end()<parameters.mergedistance) & (ci.v>0):
+                    elif (ci.distance_to_end()<parameters.mergedistance) & (ci.v>0):
                         ci.a=-1 # m/s2
-
+                    else:
+                        ci.a=1
 
         # if the intersection at the start of this road is a creator,
         # consider making a car

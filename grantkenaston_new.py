@@ -188,7 +188,7 @@ w.road_segments[0].carlist.initialize(n_cars)
 #w.road_segments[3].carlist.initialize(3)
 
 #w.initialize_lights()
-i0.initialize_lights([[r1,r5],[r3,r7]])
+#i0.initialize_lights([[r1,r5],[r3,r7]])
 r1.add_oncoming(r5)
 r5.add_oncoming(r1)
 

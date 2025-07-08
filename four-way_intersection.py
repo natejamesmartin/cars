@@ -25,6 +25,7 @@
 # * exit lanes
 
 # TO FIX
+# * no oncoming traffic for roads 3 or 7 in four-way_intersection!!!
 
 import matplotlib.pyplot as plt
 from matplotlib import animation
@@ -119,6 +120,8 @@ w.road_segments[0].carlist.initialize(n_cars)
 i0.initialize_lights([[r1,r5],[r3,r7]])
 r1.add_oncoming(r5)
 r5.add_oncoming(r1)
+r3.add_oncoming(r7)
+r7.add_oncoming(r3)
 
 n_steps=100000
 
