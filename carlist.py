@@ -42,7 +42,7 @@ class car:
 
         self.creationtime=t
 
-        self.m=m
+        self.m=m # kg
 
     def assign_next_road(self):
         # selects the next road this car will go onto
