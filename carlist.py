@@ -12,6 +12,17 @@ np.random.seed(parameters.seed)
 
 color = ["red","blue","green","gray","purple","orange"]
 
+g = 9.8 # m/s**2
+mu_r = 0.012 # coef of friction for a standard car
+cda = 0.0654 # m**2; coef of drag * frontal area of car
+rho = 1.21 # kg/m**3; density of air
+displacement = 1.7 # L; engine displacement of a 2005 Honda Civic
+idling = 0.6 # L/h/L of engine displacement
+ic = idling*displacement # L/h; idling consumption
+h = 34000000 # J/L; enthalpy of combustion of gasoline
+epsilon = 0.2 # engine efficiency
+
+
 class car:
     def __init__(self,road,x=0,y=0,t=0,vi=10,m=1000):
         self.vmax=np.random.poisson(lam=parameters.poisson_vmax, size=1)[0] # m/s
@@ -43,6 +54,13 @@ class car:
         self.creationtime=t
 
         self.m=m # kg
+
+        self.ke = 0.5*self.m*self.v**2 # J
+        self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
+        self.fr = self.m*g*mu_r # N; rotational friction force
+        self.pmech = self.v*(self.fr+self.fa) # W
+
+        
 
     def assign_next_road(self):
         # selects the next road this car will go onto
@@ -116,6 +134,12 @@ class car:
         self.vy=self.v*self.unity
         self.x=self.x+self.vx*dt
         self.y=self.y+self.vy*dt
+        self.update_energy()
+    def update_energy(self):
+        self.ke = 0.5*self.m*self.v**2 # J
+        self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
+        self.fr = self.m*g*mu_r # N; rotational friction force
+        self.pmech = self.v*(self.fr+self.fa) # W
 
 class carstats:
     def __init__(self):
