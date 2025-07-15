@@ -82,8 +82,8 @@ class car:
                     break
             self.next_road=newroad
             self.next_road_listindex=random_index
-            print("this car is on road number",self.road.id,"and it is turning on to",self.next_road.id)
-            print("The",self.color,"car will go",self.next_turn)
+            #print("this car is on road number",self.road.id,"and it is turning on to",self.next_road.id)
+            #print("The",self.color,"car will go",self.next_turn)
         else:
             self.next_road_listindex=-1 # this intersection must be a destroyer
             self.next_turn='none'
@@ -166,9 +166,10 @@ class carstats:
     def savefuel(self,fuel):
         self.fuels.append(fuel)
     def printstats(self):
-        print(self.creationtimes)
-        print(self.deletiontimes)
-        print(self.fuels)
+        #print(self.creationtimes)
+        #print(self.deletiontimes)
+        #print(self.fuels)
+        print( )
         
 class carlist:
     def __init__(self,road):
@@ -181,7 +182,8 @@ class carlist:
         self.t=0
         self.cs=carstats()
     def printcars(self):
-        print (self.xs())
+        #print (self.xs())
+        print( )
     def addcar(self,c):
         self.carlist.append(c)
         self.n+=1
@@ -284,7 +286,7 @@ class carlist:
             # move it to the next road.
             
             if c.distance_to_end()<0:
-                print("the car reached the end of the road segment")
+                #print("the car reached the end of the road segment")
                 # find the intersection at the end of this road
                 thisint=self.road.endint
                 # find available road segments to go on to
@@ -293,7 +295,7 @@ class carlist:
                 if len(starts)>0:
                     #newroad=starts[randint(0,len(starts)-1)]
                     newroad=c.next_road
-                    print("Moving car from",self.road.id,"to",newroad.id)
+                    #print("Moving car from",self.road.id,"to",newroad.id)
                     # newroad.carlist.carlist.append(copy.deepcopy(c))
                     # not sure if we need to copy it, or not
                     # let's try without, at first
@@ -303,7 +305,7 @@ class carlist:
                     newroad.carlist.carlist[-1].update_road(newroad)
                 else:
                     # or do nothing if the intersection is a destroyer
-                    print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
+                    #print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
                     self.cs.savetimes(c.creationtime,self.t)
                     self.cs.savefuel(c.fuel)
                 del self.carlist[0]
@@ -402,18 +404,18 @@ class carlist:
                     c=self.carlist[-1]
                     if c.distance_from_start()>parameters.brakedistance:
                         create_car=True
-                        print("There are cars already, and we should make a new one.")
+                        #print("There are cars already, and we should make a new one.")
                 else:
                     create_car=True
-                    print("No cars, here!  Let us make one!")
+                    #print("No cars, here!  Let us make one!")
 
                 if create_car:
-                    print("creating car")
+                    #print("creating car")
                     self.addcarstart()
                     # decide how long to wait before creating next car
                     self.nextt=np.random.poisson(lam=self.poisson_time_to_create,size=1)[0]
                     self.nextt+=1 # make sure it can't be zero
-                    print("Next car will be created in about",self.nextt,"s")
+                    #print("Next car will be created in about",self.nextt,"s")
                     self.time_since_creation=0 # reset the clock
 
     def distance(self,car1,car2):
@@ -440,7 +442,7 @@ class carlist:
             pos=np.random.rand(1)[0]*self.road.length
             poslist.append(pos)
         poslist.sort(reverse=True)
-        print(poslist)
+        #print(poslist)
         for pos in poslist:
             x=self.road.startx+pos*self.road.unitx
             y=self.road.starty+pos*self.road.unity

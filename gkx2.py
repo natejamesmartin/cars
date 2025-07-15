@@ -29,9 +29,21 @@ from matplotlib import animation
 from numpy import random
 import numpy as np
 from road import *
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v','--verbose',type=int)
+parser.add_argument('-m','--movie')
+parser.add_argument('-t','--carnum')
+args = parser.parse_args()
+
+if(args.verbose == 0):
+    print('nothing')
 
 fig = plt.figure()
 ax = fig.add_subplot(111, aspect='equal')
+
+
             
 
 w=world()
@@ -46,7 +58,7 @@ def link_ns(gk1,gk2,w):
     starty=gk1.r6ro.endy
     endx=gk2.r1ri.startx
     endy=gk2.r1ri.starty
-    print(startx,starty,endx,endy)
+    #print(startx,starty,endx,endy)
     sixtyonelinker_right=road_segment(startx,starty,endx,endy,2,20)
     w.add_road_segment(sixtyonelinker_right)
     gk1.i6rd.add_road_start(sixtyonelinker_right)
@@ -56,7 +68,7 @@ def link_ns(gk1,gk2,w):
     starty=gk1.r6lo.endy
     endx=gk2.r1li.startx
     endy=gk2.r1li.starty
-    print(startx,starty,endx,endy)
+    #print(startx,starty,endx,endy)
     sixtyonelinker_left=road_segment(startx,starty,endx,endy,2,20)
     w.add_road_segment(sixtyonelinker_left)
     gk1.i6ld.add_road_start(sixtyonelinker_left)
@@ -68,7 +80,7 @@ def link_ns(gk1,gk2,w):
     starty=gk2.r2ro.endy
     endx=gk1.r5ri.startx
     endy=gk1.r5ri.starty
-    print(startx,starty,endx,endy)
+    #print(startx,starty,endx,endy)
     twentyfivelinker_right=road_segment(startx,starty,endx,endy,2,20)
     w.add_road_segment(twentyfivelinker_right)
     gk2.i2rd.add_road_start(twentyfivelinker_right)
@@ -78,7 +90,7 @@ def link_ns(gk1,gk2,w):
     starty=gk2.r2lo.endy
     endx=gk1.r5li.startx
     endy=gk1.r5li.starty
-    print(startx,starty,endx,endy)
+    #print(startx,starty,endx,endy)
     twentyfivelinker_left=road_segment(startx,starty,endx,endy,2,20)
     w.add_road_segment(twentyfivelinker_left)
     gk2.i2ld.add_road_start(twentyfivelinker_left)
@@ -110,7 +122,7 @@ global_time=0
 
 def animate(i):
     global global_time,w,timebox
-    print("the time is %6.2f s"%(global_time))
+    #print("the time is %6.2f s"%(global_time))
     
     xs,ys,colors=w.car_data()
     scatter=w.carplot
