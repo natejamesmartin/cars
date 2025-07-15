@@ -18,12 +18,12 @@ cda = 0.0654 # m**2; coef of drag * frontal area of car
 rho = 1.21 # kg/m**3; density of air
 displacement = 1.7 # L; engine displacement of a 2005 Honda Civic
 idling = 0.6 # L/h/L of engine displacement
-ic = idling*displacement # L/h; idling consumption
+ic = idling*displacement/3600 # L/s; idling consumption
 h = 34000000 # J/L; enthalpy of combustion of gasoline
 epsilon = 0.2 # engine efficiency
 
-
 class car:
+    number = 0
     def __init__(self,road,x=0,y=0,t=0,vi=10,m=1000):
         self.vmax=np.random.poisson(lam=parameters.poisson_vmax, size=1)[0] # m/s
         if self.vmax==0:  # don't allow cars with zero speed
@@ -41,6 +41,10 @@ class car:
         
         #self.color=np.random.rand(1)[0]
         self.color=color[randint(0,len(color)-1)]
+
+        self.carnum = car.number
+        
+        car.number+=1
 
         self.a=(self.vmax-self.v)/self.acceltime # m/s^2
         self.ax=self.a*self.unitx
@@ -60,7 +64,7 @@ class car:
         self.fr = self.m*g*mu_r # N; rotational friction force
         self.pmech = self.v*(self.fr+self.fa) # W
 
-        
+        self.fuel = 0 # L of fuel consumed
 
     def assign_next_road(self):
         # selects the next road this car will go onto
@@ -126,6 +130,8 @@ class car:
 
         
     def step(self, dt):
+        pmechi = self.pmech
+        kei = self.ke
         self.v=self.v+self.a*dt
         if self.v>self.vmax:
             self.v=self.vmax
@@ -135,6 +141,14 @@ class car:
         self.x=self.x+self.vx*dt
         self.y=self.y+self.vy*dt
         self.update_energy()
+        kef = self.ke
+        dke = kef-kei
+        if(dke >= 0):
+            dw = dke + pmechi*dt # J
+        else: # dke < 0
+            dw = ic*dt*epsilon*h # J
+        dfuel = dw/epsilon/h
+        self.fuel += dfuel
     def update_energy(self):
         self.ke = 0.5*self.m*self.v**2 # J
         self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
@@ -145,12 +159,16 @@ class carstats:
     def __init__(self):
         self.creationtimes=[]
         self.deletiontimes=[]
+        self.fuels=[]
     def savetimes(self,creationtime,deletiontime):
         self.creationtimes.append(creationtime)
         self.deletiontimes.append(deletiontime)
+    def savefuel(self,fuel):
+        self.fuels.append(fuel)
     def printstats(self):
         print(self.creationtimes)
         print(self.deletiontimes)
+        print(self.fuels)
         
 class carlist:
     def __init__(self,road):
@@ -287,6 +305,7 @@ class carlist:
                     # or do nothing if the intersection is a destroyer
                     print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
                     self.cs.savetimes(c.creationtime,self.t)
+                    self.cs.savefuel(c.fuel)
                 del self.carlist[0]
 
 
