@@ -45,15 +45,13 @@ class car:
         self.vy=self.v*self.unity
         
         #self.color=np.random.rand(1)[0]
-        #self.color=color[randint(0,len(color)-1)]
 
         self.carnum = car.number
         
         car.number+=1
 
-        if(self.carnum != args.carnum):
-            self.color=color[randint(0,len(color)-1)]
-        else: # self.carnum == args.carnum
+        self.color=color[randint(0,len(color)-1)]
+        if(self.carnum == args.carnum):
             self.color = 'pink'
         
         self.a=(self.vmax-self.v)/self.acceltime # m/s^2
@@ -154,7 +152,9 @@ class car:
         self.update_energy()
         kef = self.ke
         dke = kef-kei
-        if(dke >= 0):
+        if(dke==0 and self.ke==0):
+            dw = ic*dt*epsilon*h # J
+        elif(dke >= 0):
             dw = dke + pmechi*dt # J
         else: # dke < 0
             dw = ic*dt*epsilon*h # J
