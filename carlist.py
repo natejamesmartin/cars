@@ -6,6 +6,11 @@ from math import sqrt
 from math import pi
 import parameters
 import copy
+from CLVars import parse_my_args
+import argparse
+import time
+
+args = parse_my_args()
 
 seed(parameters.seed)
 np.random.seed(parameters.seed)
@@ -40,12 +45,17 @@ class car:
         self.vy=self.v*self.unity
         
         #self.color=np.random.rand(1)[0]
-        self.color=color[randint(0,len(color)-1)]
+        #self.color=color[randint(0,len(color)-1)]
 
         self.carnum = car.number
         
         car.number+=1
 
+        if(self.carnum != args.carnum):
+            self.color=color[randint(0,len(color)-1)]
+        else: # self.carnum == args.carnum
+            self.color = 'pink'
+        
         self.a=(self.vmax-self.v)/self.acceltime # m/s^2
         self.ax=self.a*self.unitx
         self.ay=self.a*self.unity
@@ -82,8 +92,9 @@ class car:
                     break
             self.next_road=newroad
             self.next_road_listindex=random_index
-            #print("this car is on road number",self.road.id,"and it is turning on to",self.next_road.id)
-            #print("The",self.color,"car will go",self.next_turn)
+            if(args.verbose==1):
+                print("this car is on road number",self.road.id,"and it is turning on to",self.next_road.id)
+                print("The",self.color,"car will go",self.next_turn)
         else:
             self.next_road_listindex=-1 # this intersection must be a destroyer
             self.next_turn='none'
@@ -149,6 +160,11 @@ class car:
             dw = ic*dt*epsilon*h # J
         dfuel = dw/epsilon/h
         self.fuel += dfuel
+        if(self.carnum == args.carnum):
+            print('Car Number ',self.carnum,':')
+            print('Change in KE = ',dke)
+            print('Change in Fuel = ',dfuel)
+            time.sleep(0.1)
     def update_energy(self):
         self.ke = 0.5*self.m*self.v**2 # J
         self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
@@ -166,10 +182,9 @@ class carstats:
     def savefuel(self,fuel):
         self.fuels.append(fuel)
     def printstats(self):
-        #print(self.creationtimes)
-        #print(self.deletiontimes)
-        #print(self.fuels)
-        print( )
+        print(self.creationtimes)
+        print(self.deletiontimes)
+        print(self.fuels)
         
 class carlist:
     def __init__(self,road):
@@ -182,8 +197,7 @@ class carlist:
         self.t=0
         self.cs=carstats()
     def printcars(self):
-        #print (self.xs())
-        print( )
+        print (self.xs())
     def addcar(self,c):
         self.carlist.append(c)
         self.n+=1
@@ -286,7 +300,8 @@ class carlist:
             # move it to the next road.
             
             if c.distance_to_end()<0:
-                #print("the car reached the end of the road segment")
+                if(args.verbose == 1):
+                    print("the car reached the end of the road segment")
                 # find the intersection at the end of this road
                 thisint=self.road.endint
                 # find available road segments to go on to
@@ -295,7 +310,8 @@ class carlist:
                 if len(starts)>0:
                     #newroad=starts[randint(0,len(starts)-1)]
                     newroad=c.next_road
-                    #print("Moving car from",self.road.id,"to",newroad.id)
+                    if(args.verbose==1):
+                        print("Moving car from",self.road.id,"to",newroad.id)
                     # newroad.carlist.carlist.append(copy.deepcopy(c))
                     # not sure if we need to copy it, or not
                     # let's try without, at first
@@ -305,7 +321,8 @@ class carlist:
                     newroad.carlist.carlist[-1].update_road(newroad)
                 else:
                     # or do nothing if the intersection is a destroyer
-                    #print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
+                    if(args.verbose==1):
+                        print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
                     self.cs.savetimes(c.creationtime,self.t)
                     self.cs.savefuel(c.fuel)
                 del self.carlist[0]
@@ -319,15 +336,18 @@ class carlist:
             if closestindex!=-1: # not the car at the front of the line
                 closestcar=self.carlist[closestindex]
                 closestdistance=self.distance(ci,closestcar)
-                #print("the closest car to car ",i, "is", closestindex)
+                if(args.verbose==1):
+                    print("the closest car to car ",i, "is", closestindex)
 
                 if (closestdistance<parameters.stopdistance):
                     ci.v=0 # m/s
                     ci.a=0 # m/s2
-                    #print("close avoidance",i,closestindex,self.xs())
+                    if(args.verbose==1):
+                        print("close avoidance",i,closestindex,self.xs())
                 elif (closestdistance<parameters.brakedistance) & (ci.v>1):
                     ci.a=-1 # m/s2
-                    #print("collision avoidance",i,closestindex,self.xs())
+                    if(args.verbose==1):
+                        print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
                     ci.a=1
                 else:
@@ -353,10 +373,12 @@ class carlist:
                 if (distance_to_nextcar<parameters.stopdistance):
                     ci.v=0 # m/s
                     ci.a=0 # m/s2
-                    #print("close avoidance",i,closestindex,self.xs())
+                    if(args.verbose==1):
+                        print("close avoidance",i,closestindex,self.xs())
                 elif (distance_to_nextcar<parameters.brakedistance) & (ci.v>1):
                     ci.a=-1 # m/s2
-                    #print("collision avoidance",i,closestindex,self.xs())
+                    if(args.verbose==1):
+                        print("collision avoidance",i,closestindex,self.xs())
                 elif ci.v<ci.vmax:
                     if ci.waiting:
                         ci.a=0
@@ -394,7 +416,8 @@ class carlist:
         # if the intersection at the start of this road is a creator,
         # consider making a car
         if self.road.startint.is_creator():
-            #print("Checking to see if we should create a car on",self.road.id)
+            if(args.verbose==1):
+                print("Checking to see if we should create a car on",self.road.id)
             self.time_since_creation+=dt
             if (self.time_since_creation>self.nextt):
 
@@ -404,18 +427,21 @@ class carlist:
                     c=self.carlist[-1]
                     if c.distance_from_start()>parameters.brakedistance:
                         create_car=True
-                        #print("There are cars already, and we should make a new one.")
+                        if(args.verbose==1):
+                            print("There are cars already, and we should make a new one.")
                 else:
                     create_car=True
                     #print("No cars, here!  Let us make one!")
 
                 if create_car:
-                    #print("creating car")
+                    if(args.verbose==1):
+                        print("creating car")
                     self.addcarstart()
                     # decide how long to wait before creating next car
                     self.nextt=np.random.poisson(lam=self.poisson_time_to_create,size=1)[0]
                     self.nextt+=1 # make sure it can't be zero
-                    #print("Next car will be created in about",self.nextt,"s")
+                    if(args.verbose==1):
+                        print("Next car will be created in about",self.nextt,"s")
                     self.time_since_creation=0 # reset the clock
 
     def distance(self,car1,car2):
@@ -442,7 +468,8 @@ class carlist:
             pos=np.random.rand(1)[0]*self.road.length
             poslist.append(pos)
         poslist.sort(reverse=True)
-        #print(poslist)
+        if(args.verbose==1):
+            print(poslist)
         for pos in poslist:
             x=self.road.startx+pos*self.road.unitx
             y=self.road.starty+pos*self.road.unity

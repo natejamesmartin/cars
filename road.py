@@ -4,6 +4,10 @@ from carlist import carlist
 from carlist import car
 import matplotlib.pyplot as plt
 import parameters
+import argparse
+from CLVars import parse_my_args
+
+args = parse_my_args()
 
 class road_segment:
 
@@ -125,18 +129,22 @@ class new_intersection:
                     light.trafficlightcolor='yellow'
 
     def initialize_lights(self,tietogether=[]):
-        print("initializing intersection number",self.id,tietogether)
+        if(args.verbose==1):
+            print("initializing intersection number",self.id,tietogether)
         self.cycletime=0
         for tiethese in tietogether:
-            print("tie the following traffic lights together")
+            if(args.verbose==1):
+                print("tie the following traffic lights together")
             for seg in tiethese:
-                print(seg.id)
+                if(args.verbose==1):
+                    print(seg.id)
         self.trafficlights=tietogether
         if len(self.trafficlights)==0:
             for seg in self.road_ends:
                 if seg.trafficlight:
                     self.trafficlights.append([seg])
-                    print("adding traffic light")
+                    if(args.verbose==1):
+                        print("adding traffic light")
         for i,lights in enumerate(self.trafficlights):
             for light in lights:
                 light.trafficlightcolor='red'
@@ -193,21 +201,26 @@ class world:
     def verbose_draw(self):
         for seg in self.road_segments:
             plt.arrow(seg.startx,seg.starty,seg.endx-seg.startx,seg.endy-seg.starty,width=10,length_includes_head=True)
-            print("This segment has id",seg.id)
-            print("This segment starts at intersection",seg.startint)
-            print("This segment ends at intersection",seg.endint)
+            if(args.verbose==1):
+                print("This segment has id",seg.id)
+                print("This segment starts at intersection",seg.startint)
+                print("This segment ends at intersection",seg.endint)
             for c in seg.carlist.carlist:
-                print(c.color)
+                if(args.verbose==1):
+                    print(c.color)
                 plt.scatter(c.x,c.y,c=c.color)
         for i in self.intersections:
-            print("The id of this intersection is",i.id)
-            print("starts",i.list_starts(),"ends",i.list_ends())
-            print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
+            if(args.verbose==1):
+                print("The id of this intersection is",i.id)
+                print("starts",i.list_starts(),"ends",i.list_ends())
+                print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
             plt.scatter(i.x(),i.y(),c='black')
             if(i.is_creator()):
-                print("This intersection is a creator")
+                if(args.verbose==1):
+                    print("This intersection is a creator")
             if(i.is_destroyer()):
-                print("This intersection is a destroyer")
+                if(args.verbose==1):
+                    print("This intersection is a destroyer")
     def step(self,dt):
         for seg in self.road_segments:
             seg.carlist.step(dt)
@@ -224,7 +237,8 @@ class world:
         for seg in self.road_segments:
             i=seg.endint
             if i.is_destroyer():
-                print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
+                if(args.verbose==1):
+                    print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
                 seg.carlist.cs.printstats()
                 with open('road_stats.out','a') as f:
                     cs=seg.carlist.cs
@@ -234,7 +248,8 @@ class world:
         for seg in self.road_segments:
             i=seg.endint
             if i.is_destroyer():
-                print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
+                if(args.verbose==1):
+                    print("This intersection is at x=%f y=%f"%(i.x(),i.y()))
                 lifetimes=[]
                 cs=seg.carlist.cs
                 for i,ct in enumerate(cs.creationtimes):
