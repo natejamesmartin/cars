@@ -65,7 +65,17 @@ class car:
 
         self.creationtime=t
 
-        self.m=m # kg
+        self.carinfo = randint(0,2)
+        if(self.carinfo == 1):
+            #fuel efficient
+            self.m=m # kg
+        if(self.carinfo==2):
+            #normal
+            self.m=m #kg
+        if(self.carinfo==0):
+            #gas guzzler
+            self.m=m #kg
+        
 
         self.ke = 0.5*self.m*self.v**2 # J
         self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
