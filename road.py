@@ -174,6 +174,14 @@ class world:
             ys+=seg.carlist.ys()
             colors+=seg.carlist.colors()
         return xs,ys,colors
+    def find_car(self):
+        # returns the car object for this carnum
+        found_car = None
+        for seg in self.road_segments:
+            for car in seg.carlist.carlist:
+                if(args.carnum == car.carnum):
+                    found_car = car
+        return found_car
     def lights_data(self):
         # returns where all the lights in the world are
         xs=[]
@@ -186,17 +194,17 @@ class world:
                 colors.append(seg.trafficlightcolor)
         return xs,ys,colors        
 
-    def draw(self):
+    def draw(self,ax):
         for seg in self.road_segments:
-            plt.arrow(seg.startx,seg.starty,seg.endx-seg.startx,seg.endy-seg.starty,width=2,length_includes_head=True,color='black')
+            ax.arrow(seg.startx,seg.starty,seg.endx-seg.startx,seg.endy-seg.starty,width=2,length_includes_head=True,color='black')
             if seg.stopsign:
-                plt.scatter(seg.endx-seg.unitx*20,seg.endy-seg.unity*20,marker='8',c='red',s=200)
+                ax.scatter(seg.endx-seg.unitx*20,seg.endy-seg.unity*20,marker='8',c='red',s=200)
         #for i in self.intersections:
         #    plt.scatter(i.x(),i.y(),c='red',marker='s')
         xs,ys,colors=self.car_data()
-        self.carplot=plt.scatter(xs,ys,c=colors)
+        self.carplot=ax.scatter(xs,ys,c=colors)
         xs,ys,colors=self.lights_data()
-        self.lightsplot=plt.scatter(xs,ys,c=colors,marker='s',s=200,zorder=-1)
+        self.lightsplot=ax.scatter(xs,ys,c=colors,marker='s',s=200,zorder=-1)
 
     def verbose_draw(self):
         for seg in self.road_segments:

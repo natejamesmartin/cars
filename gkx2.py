@@ -31,6 +31,8 @@ import numpy as np
 from road import *
 import argparse
 from CLVars import parse_my_args
+import CLVars
+import carlist
 
 args = parse_my_args()
 
@@ -44,6 +46,7 @@ args = parse_my_args()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, aspect='equal')
+fig2, (ax2, ax3) = plt.subplots(2, 1, figsize=(8, 6))
 
 
             
@@ -121,10 +124,17 @@ n_steps=args.nsteps
 
 # funcanimation loop, which controls the main event loop, now
 
-w.draw()
-timebox=plt.text(0.01,0.99,"Time: %6.2f s"%(0),
+w.draw(ax)
+timebox=ax.text(0.01,0.99,"Time: %6.2f s"%(0),
                  ha='left',va='top',transform=ax.transAxes)
 global_time=0
+xFuel = []
+yFuel = []
+xKE = []
+yKE = []
+
+ax.set_xlabel("distance (m)")
+ax.set_ylabel("distance (m)")
 
 def animate(i):
     global global_time,w,timebox
@@ -142,15 +152,69 @@ def animate(i):
     lightscatter.set_color(colors)
 
     timebox.set_text("Time: %6.2f s"%(global_time))
-    
+
     w.step(dt)
     global_time+=dt
     return scatter,lightscatter,timebox,
 
+def init():
+    ax2.set_xlabel("Time (s)")
+    ax2.set_ylabel("Fuel (L)")
+    ax2.set_xlim(0,30)
+    ax2.set_ylim(0,0.02)
+    del xFuel[:]
+    del yFuel[:]
+    line.set_data(xFuel,yFuel)
+    ax3.set_xlabel("Time (s)")
+    ax3.set_ylabel("KE (J)")
+    ax3.set_xlim(0,30)
+    ax3.set_ylim(0,200000)
+    del xKE[:]
+    del yKE[:]
+    ax2.set_title("Fuel Consumption")
+    ax3.set_title("Kinetic Energy")
+    return line, line2,
+
+line, = ax2.plot([],[],lw=2)
+line2, = ax3.plot([],[],lw=2)
+
+def animate2(i):
+    found_car = w.find_car()
+    t = -1
+    fuel = -1
+    if(found_car != None):
+        t = found_car.time
+        fuel = found_car.fuel
+        ke = found_car.ke
+        xFuel.append(t)
+        yFuel.append(fuel)
+        xKE.append(t)
+        yKE.append(ke)
+    line.set_data(xFuel,yFuel)
+    line2.set_data(xKE,yKE)
+    xmin, xmax = ax2.get_xlim()
+    if t >= xmax:
+        ax2.set_xlim(xmin, 2*xmax)
+    ymin, ymax = ax2.get_ylim()
+    if fuel >= ymax:
+        ax2.set_ylim(ymin, 2*ymax)
+    xmin, xmax = ax3.get_xlim()
+    if t >= xmax:
+        ax3.set_xlim(xmin, 2*xmax)
+
+    return line, line2,
+
 speed_factor=10 # 1000 is real time, smaller to go faster
 # set repeat = True to run forever
+
 ani=animation.FuncAnimation(fig, animate, frames=n_steps,
-                            interval=dt*speed_factor, blit=True,repeat=False)
+                            interval=dt*speed_factor, blit=False,repeat=False)
+
+if(args.carnum!=-1):
+    ani2 = animation.FuncAnimation(fig2,animate2,frames=n_steps,
+                                   interval = dt*speed_factor,
+                                   init_func=init, blit=False)
+
 
 # uncomment the following lines to save mp4 (if -m)
 if(args.movie == True):

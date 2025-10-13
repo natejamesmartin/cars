@@ -7,25 +7,34 @@ from math import pi
 import parameters
 import copy
 from CLVars import parse_my_args
+import CLVars
 import argparse
 import time
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 args = parse_my_args()
 
+
 seed(parameters.seed)
 np.random.seed(parameters.seed)
+
+dt = 0.1 # s
 
 color = ["red","blue","green","gray","purple","orange"]
 
 g = 9.8 # m/s**2
 mu_r = 0.012 # coef of friction for a standard car
-cda = 0.0654 # m**2; coef of drag * frontal area of car
+cda = 0.654 # m**2; coef of drag * frontal area of car
 rho = 1.21 # kg/m**3; density of air
 displacement = 1.7 # L; engine displacement of a 2005 Honda Civic
 idling = 0.6 # L/h/L of engine displacement
 ic = idling*displacement/3600 # L/s; idling consumption
 h = 34000000 # J/L; enthalpy of combustion of gasoline
 epsilon = 0.2 # engine efficiency
+
+# https://c21.phas.ubc.ca/article/energy-use-in-vehicles/
+# https://oee.nrcan.gc.ca/transportation/idling/calculations.cfm?attr-28
 
 class car:
     number = 0
@@ -43,6 +52,7 @@ class car:
         self.unity=self.road.unity
         self.vx=self.v*self.unitx
         self.vy=self.v*self.unity
+        self.time = 0
         
         #self.color=np.random.rand(1)[0]
 
@@ -149,6 +159,7 @@ class car:
 
         
     def step(self, dt):
+        self.time += dt
         pmechi = self.pmech
         kei = self.ke
         self.v=self.v+self.a*dt
@@ -164,17 +175,30 @@ class car:
         dke = kef-kei
         if(dke==0 and self.ke==0):
             dw = ic*dt*epsilon*h # J
+            print('Idling',self.carnum,dw)
         elif(dke >= 0):
             dw = dke + pmechi*dt # J
+            print('Cruising or accelerating',self.carnum,dw)
         else: # dke < 0
             dw = ic*dt*epsilon*h # J
+            print('Decelerating',self.carnum,dw)
         dfuel = dw/epsilon/h
         self.fuel += dfuel
         if(self.carnum == args.carnum):
             print('Car Number ',self.carnum,':')
-            print('Change in KE = ',dke)
-            print('Change in Fuel = ',dfuel)
+            print('KE_i = ',kei)
+            print('KE_f = ',kef)
+            print('pmechi = ',pmechi)
+            print('pmechf = ',self.pmech)
+            print('frf = ',self.fr)
+            print('faf = ',self.fa)
+            print('Fuel = ',self.fuel)
+            print('Speed = ',self.v)
+            print('Time = ',self.time)
             time.sleep(0.1)
+
+            #xFuel.append(self.time)
+            #yFuel.append(self.fuel)
     def update_energy(self):
         self.ke = 0.5*self.m*self.v**2 # J
         self.fa = 0.5*rho*cda*self.v**2 # N; air drag force
@@ -224,7 +248,6 @@ class carlist:
 
         self.t+=dt
         
-
         if len(self.carlist)>0:
             # Check for things to do with the first car on this road segment
             c=self.carlist[0]
@@ -484,3 +507,4 @@ class carlist:
             x=self.road.startx+pos*self.road.unitx
             y=self.road.starty+pos*self.road.unity
             self.addcarpos(x,y)
+
