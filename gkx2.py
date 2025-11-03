@@ -166,13 +166,13 @@ def init():
     del yFuel[:]
     line.set_data(xFuel,yFuel)
     ax3.set_xlabel("Time (s)")
-    ax3.set_ylabel("KE (J)")
+    ax3.set_ylabel("Speed (m/s)")
     ax3.set_xlim(0,30)
-    ax3.set_ylim(0,200000)
+    ax3.set_ylim(0,30)
     del xKE[:]
     del yKE[:]
     ax2.set_title("Fuel Consumption")
-    ax3.set_title("Kinetic Energy")
+    ax3.set_title("Speed")
     return line, line2,
 
 line, = ax2.plot([],[],lw=2)
@@ -185,11 +185,11 @@ def animate2(i):
     if(found_car != None):
         t = found_car.time
         fuel = found_car.fuel
-        ke = found_car.ke
+        v = found_car.v
         xFuel.append(t)
         yFuel.append(fuel)
         xKE.append(t)
-        yKE.append(ke)
+        yKE.append(v)
     line.set_data(xFuel,yFuel)
     line2.set_data(xKE,yKE)
     xmin, xmax = ax2.get_xlim()
