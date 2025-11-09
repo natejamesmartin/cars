@@ -46,7 +46,7 @@ args = parse_my_args()
 
 fig = plt.figure()
 ax = fig.add_subplot(111, aspect='equal')
-fig2, (ax2, ax3) = plt.subplots(2, 1, figsize=(8, 6))
+fig2, (ax2, ax25, ax3) = plt.subplots(3, 1, figsize=(8, 6))
 
 
             
@@ -130,6 +130,11 @@ timebox=ax.text(0.01,0.99,"Time: %6.2f s"%(0),
 global_time=0
 xFuel = []
 yFuel = []
+dFuel = []
+dFuel_kin = []
+dFuel_rol = []
+dFuel_air = []
+dFuel_sum = []
 xKE = []
 yKE = []
 
@@ -165,6 +170,18 @@ def init():
     del xFuel[:]
     del yFuel[:]
     line.set_data(xFuel,yFuel)
+    ax25.set_xlabel("Time (s)")
+    ax25.set_ylabel("Fuel per Second (L/s)")
+    ax25.set_xlim(0,30)
+    ax25.set_ylim(0,0.002)
+    line15.set_data(xFuel,yFuel)
+    line16.set_data(xFuel,yFuel)
+    line17.set_data(xFuel,yFuel)
+    line18.set_data(xFuel,yFuel)
+    line19.set_data(xFuel,yFuel)
+    ax25.legend([line15, line16, line17, line18, line19],
+                ['Fuel consumption', 'KE change', 'Rolling Friction', 'Air Friction', 'Sum'])
+
     ax3.set_xlabel("Time (s)")
     ax3.set_ylabel("Speed (m/s)")
     ax3.set_xlim(0,30)
@@ -172,37 +189,66 @@ def init():
     del xKE[:]
     del yKE[:]
     ax2.set_title("Fuel Consumption")
+    ax25.set_title("Fuel Consumption per Second")
     ax3.set_title("Speed")
-    return line, line2,
+    return line, line15,  line2,
 
 line, = ax2.plot([],[],lw=2)
+line15,=ax25.plot([],[],lw=2)
+line16,=ax25.plot([],[],lw=2)
+line17,=ax25.plot([],[],lw=2)
+line18,=ax25.plot([],[],lw=2)
+line19,=ax25.plot([],[],lw=2)
 line2, = ax3.plot([],[],lw=2)
+
+h = 34000000 # J/L; enthalpy of combustion of gasoline
+epsilon = 0.2 # engine efficiency
 
 def animate2(i):
     found_car = w.find_car()
     t = -1
     fuel = -1
     if(found_car != None):
+        print("I found a car")
         t = found_car.time
         fuel = found_car.fuel
         v = found_car.v
         xFuel.append(t)
         yFuel.append(fuel)
+        if(len(yFuel) > 1):
+            dFuel.append((yFuel[-1]-yFuel[-2])/dt)
+        else:
+            dFuel.append(yFuel[-1]/dt)
+        dFuel_kin.append(found_car.m*found_car.v*found_car.a/h/epsilon)
+        dFuel_rol.append(found_car.fr*found_car.v/h/epsilon)
+        dFuel_air.append(found_car.fa*found_car.v/h/epsilon)
+        dFuel_sum.append(dFuel_kin[-1]+dFuel_rol[-1]+dFuel_air[-1])
         xKE.append(t)
         yKE.append(v)
-    line.set_data(xFuel,yFuel)
-    line2.set_data(xKE,yKE)
-    xmin, xmax = ax2.get_xlim()
-    if t >= xmax:
-        ax2.set_xlim(xmin, 2*xmax)
-    ymin, ymax = ax2.get_ylim()
-    if fuel >= ymax:
-        ax2.set_ylim(ymin, 2*ymax)
-    xmin, xmax = ax3.get_xlim()
-    if t >= xmax:
-        ax3.set_xlim(xmin, 2*xmax)
+        line.set_data(xFuel,yFuel)
+        line15.set_data(xFuel,dFuel)
+        line16.set_data(xFuel,dFuel_kin)
+        line17.set_data(xFuel,dFuel_rol)
+        line18.set_data(xFuel,dFuel_air)
+        line19.set_data(xFuel,dFuel_sum)
+        line2.set_data(xKE,yKE)
+        xmin, xmax = ax2.get_xlim()
+        if t >= xmax:
+            ax2.set_xlim(xmin, 2*xmax)
+        ymin, ymax = ax2.get_ylim()
+        if fuel >= ymax:
+            ax2.set_ylim(ymin, 2*ymax)
+        xmin, xmax = ax25.get_xlim()
+        if t >= xmax:
+            ax25.set_xlim(xmin, 2*xmax)
+        ymin, ymax = ax25.get_ylim()
+        if dFuel[-1] >= ymax:
+            ax25.set_ylim(ymin, 2*ymax)
+        xmin, xmax = ax3.get_xlim()
+        if t >= xmax:
+            ax3.set_xlim(xmin, 2*xmax)
 
-    return line, line2,
+    return line, line15, line16, line17, line18, line19, line2,
 
 speed_factor=10 # 1000 is real time, smaller to go faster
 # set repeat = True to run forever
