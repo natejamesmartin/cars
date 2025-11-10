@@ -2,27 +2,15 @@
 
 # Ideas
 
-# DONE
-# * acceleration on merge - DONE
-# * collision avoidance - DONE
-# * different speeds - DONE
-# * turning into intersecting road - DONE
-# * 2 perpendicular roads - DONE
-# * different parameters - DONE
-# * put time in video - DONE
-# * reinstating a car creator - DONE
-# * stop signs - DONE
-# * traffic lights - DONE
-# * trying different geometries - DONE
-# * collision avoidance looking ahead to next road segment - DONE
-# * 2-way traffic - STARTED 4-way intersection - DONE
+# TO DO
+# - add carnum, possibly some other things to carstats
+# - e.g. average speed, average k.e.
+# - add time to run as a parameter in parameters.py (and the template, etc.)
+# - or use existing command-line argument
+# - prepare a new run_parameters(_gk?).py and a set of parameters.txt for a test
+# - run the test successfully
+# - prepare a gather_parameters.py to gather the results and make a graph
 
-# TO TRY
-# * multiple lanes
-# * merge lanes
-
-# TO FIX
-# * slow moving cars dont get close to one another
 
 import matplotlib.pyplot as plt
 from matplotlib import animation
