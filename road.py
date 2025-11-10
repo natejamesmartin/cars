@@ -241,7 +241,7 @@ class world:
             lc.initialize_lights()
     def printstats(self):
         with open('road_stats.out','w') as f:
-            f.write("integer creationtime deletiontime lifetime\n")
+            f.write("integer creationtime deletiontime lifetime fuel(L)\n")
         for seg in self.road_segments:
             i=seg.endint
             if i.is_destroyer():
@@ -251,7 +251,7 @@ class world:
                 with open('road_stats.out','a') as f:
                     cs=seg.carlist.cs
                     for i,ct in enumerate(cs.creationtimes):
-                        f.write("%d %f %f %f\n"%(i,ct,cs.deletiontimes[i],cs.deletiontimes[i]-ct))
+                        f.write("%d %f %f %f %f\n"%(cs.carnums[i],ct,cs.deletiontimes[i],cs.deletiontimes[i]-ct,cs.fuels[i]))
     def drawstats(self):
         for seg in self.road_segments:
             i=seg.endint

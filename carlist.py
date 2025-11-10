@@ -207,15 +207,18 @@ class car:
 
 class carstats:
     def __init__(self):
+        self.carnums=[]
         self.creationtimes=[]
         self.deletiontimes=[]
         self.fuels=[]
-    def savetimes(self,creationtime,deletiontime):
+    def savetimes(self,carnum,creationtime,deletiontime):
+        self.carnums.append(carnum)
         self.creationtimes.append(creationtime)
         self.deletiontimes.append(deletiontime)
     def savefuel(self,fuel):
         self.fuels.append(fuel)
     def printstats(self):
+        print(self.carnums)
         print(self.creationtimes)
         print(self.deletiontimes)
         print(self.fuels)
@@ -356,7 +359,7 @@ class carlist:
                     # or do nothing if the intersection is a destroyer
                     if(args.verbose==1):
                         print("%s car created at %f s deleted at %f s"%(c.color,c.creationtime,self.t))
-                    self.cs.savetimes(c.creationtime,self.t)
+                    self.cs.savetimes(c.carnum,c.creationtime,self.t)
                     self.cs.savefuel(c.fuel)
                 del self.carlist[0]
 

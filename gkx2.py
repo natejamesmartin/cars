@@ -2,6 +2,8 @@
 
 # Ideas
 
+# DONE
+
 # TO DO
 # - add carnum, possibly some other things to carstats
 # - e.g. average speed, average k.e.
